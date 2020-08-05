@@ -362,6 +362,10 @@ namespace MedPod
             // (Pawns tend to get up as soon as they are "no longer incapable of walking")
             AnesthesizePatient(patientPawn);
 
+            // Tend all bleeding hediffs immediately so the pawn doesn't die after being anesthetized by the MedPod
+            // The Hediff will be completely removed once the Medpod is done with the Healing process
+            StabilizePatient(patientPawn);
+            
             // Calculate individual and total cumulative treatment time for each hediff/injury
             foreach (Hediff currentHediff in patientTreatableHediffs)
             {
@@ -375,16 +379,22 @@ namespace MedPod
                 totalNormalizedSeverities += currentNormalizedSeverity;
 
                 TotalHealingTicks += (int)Math.Ceiling(GetHediffNormalizedSeverity(currentHediff) * MaxHealingTicks);
-
-                // Tend all bleeding hediffs immediately so the pawn doesn't die after being anesthetized by the MedPod
-                // The Hediff will be completely removed once the Medpod is done with the Healing process
-                if (currentHediff.Bleeding)
-                {
-                    currentHediff.Tended(1);
-                }
+          
             }
         }
 
+        bool StabilizePatient(Pawn patientPawn)
+        {
+            bool treated = false;
+            foreach (Hediff currentHediff in patientTreatableHediffs.Where(currentHediff => currentHediff.def.tendable
+                && !currentHediff.IsTended()))
+            {
+                currentHediff.Tended(1);
+                treated = true;
+            }
+            return treated;
+        }
+        
         private float GetHediffNormalizedSeverity(Hediff specificHediff = null)
         {
             Hediff currentHediff = (specificHediff == null) ? patientTreatableHediffs.First() : specificHediff;
