@@ -374,7 +374,7 @@ namespace MedPod
                 // currentHediff.Part will throw an error if a hediff is applied to the whole body (e.g. malnutrition), as part == null
                 float currentBodyPartMaxHealth = (currentHediff.Part != null) ? currentHediff.Part.def.GetMaxHealth(patientPawn) : 1;
 
-                float currentNormalizedSeverity = (currentSeverity < 1) ? currentSeverity : currentSeverity / currentBodyPartMaxHealth;
+                float currentNormalizedSeverity = GetHediffNormalizedSeverity(currentHediff);
 
                 totalNormalizedSeverities += currentNormalizedSeverity;
 
